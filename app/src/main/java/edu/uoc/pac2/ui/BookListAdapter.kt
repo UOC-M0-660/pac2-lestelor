@@ -1,11 +1,12 @@
 package edu.uoc.pac2.ui
 
-import android.app.ActivityOptions
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
@@ -14,7 +15,7 @@ import edu.uoc.pac2.data.Book
  * Adapter for a list of Books.
  */
 
-class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
+class BooksListAdapter(private var books: List<Book>, private var books2: LiveData<List<Book>>?) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
 
     private val evenViewType = 0
     private val oddViewType = 1
@@ -61,8 +62,23 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.titleView.text = book.title
         holder.authorView.text = book.author
 
-        // TODO: Set View Click Listener
+        // tag as a way to inform the onclicklistener on the position
+        with(holder.itemView) {
+            tag = position
+            setOnClickListener(onClickListener)
+        }
     }
+
+    private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
+        //Log.d("cfauli", "onClickListener item" + v.tag + " " + books2?.get(0)?.title )
+        val item = v.tag as Int
+        Log.d("cfauli", "onClickListener  " + item)
+        val intent = Intent(v.context, BookDetailActivity::class.java).apply {
+            putExtra(BookDetailFragment.ARG_ITEM_ID, v.tag as Int)
+        }
+        v.context.startActivity(intent)
+    }
+
 
     // Returns total items in Adapter
     override fun getItemCount(): Int {

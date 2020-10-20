@@ -1,15 +1,26 @@
 package edu.uoc.pac2.data
 
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+
 /**
  * Book Dao (Data Access Object) for accessing Book Table functions.
  */
-
+@Dao
 interface BookDao {
-    fun getAllBooks(): List<Book>
 
-    fun getBookById(id: Int): Book?
+    @Query("SELECT * FROM Book")
+    fun getAllBooks(): LiveData<List<Book>>
 
-    fun getBookByTitle(titleBook: String): Book?
+    @Query("SELECT * FROM Book WHERE uid = :id")
+    fun getBookById(id: Int): LiveData<Book>?
 
-    fun saveBook(book: Book): Long
+    @Query("SELECT * FROM Book WHERE title = :titleBook")
+    fun getBookByTitle(titleBook: String): LiveData<Book>?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveBook(book: Book): Long
 }

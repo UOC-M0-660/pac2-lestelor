@@ -28,7 +28,7 @@ class BookDetailFragment : Fragment() {
 
     // TODO: Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
-        throw NotImplementedError()
+        //throw NotImplementedError()
     }
 
     // TODO: Init UI with book details
