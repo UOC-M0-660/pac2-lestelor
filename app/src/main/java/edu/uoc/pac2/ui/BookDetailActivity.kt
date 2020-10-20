@@ -20,13 +20,11 @@ import kotlinx.coroutines.CoroutineScope
  * An activity representing a single Book detail screen.
  */
 class BookDetailActivity : AppCompatActivity() {
-    private lateinit var myApplication: MyApplication
+
     private val TAG = "BookListActivity"
 
     private lateinit var adapter: BooksListAdapter
     private var book: Book? = null
-    private lateinit var booksInteractor: BooksInteractor
-    private lateinit var viewModelScope: CoroutineScope
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +35,7 @@ class BookDetailActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        myApplication = applicationContext as MyApplication
+
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -56,26 +54,6 @@ class BookDetailActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                     .add(R.id.book_detail_container, fragment)
                     .commit()
-
-
-
-            val liveBook = myApplication.getBooksInteractor().getBookById(itemID+1)
-
-            liveBook?.observe(this, Observer { bookObserved ->
-                // Update the cached copy of the books in the adapter.
-                bookObserved?.let {
-                    book = bookObserved
-
-                    val actionBarTittle = book?.title
-                    actionBar?.title =actionBarTittle
-                    supportActionBar?.title = actionBarTittle  // provide compatibility to all the versions
-                    fragment_book_author.text = book?.author
-                    fragment_book_date.text = book?.publicationDate
-                    fragment_book_description.text = book?.description
-                    Picasso.get().load(book?.urlImage).resize(400,700).into(fragment_book_image)
-
-                }
-            })
         }
 
 
