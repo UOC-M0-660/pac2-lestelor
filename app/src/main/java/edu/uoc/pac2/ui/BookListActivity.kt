@@ -1,6 +1,5 @@
 package edu.uoc.pac2.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +11,6 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
-import edu.uoc.pac2.data.ApplicationDatabase
 import edu.uoc.pac2.data.Book
 import edu.uoc.pac2.data.BooksInteractor
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +27,6 @@ class BookListActivity : AppCompatActivity() {
 
     private lateinit var adapter: BooksListAdapter
     private var books: List<Book>? = null
-    private var books2: LiveData<List<Book>>?  = null
     private lateinit var booksInteractor: BooksInteractor
     private lateinit var viewModelScope:CoroutineScope
 
@@ -45,25 +42,13 @@ class BookListActivity : AppCompatActivity() {
         initToolbar()
         initRecyclerView()
 
-
-
-
+        // initialize interactor
         booksInteractor = myApplication.getBooksInteractor()
-        viewModelScope = AndroidViewModel(application).viewModelScope
-
+        // define scope for livedata
+        viewModelScope = myApplication.getViewModelScope()
 
         // Get Books
         getBooks(this)
-
-
-
-
-        /*bookViewModel = ViewModelProvider(this).get(BookViewModel::class.java)
-        bookViewModel.allBooks.observe(this, Observer { books ->
-            // Update the cached copy of the words in the adapter.
-            books?.let { adapter.setBooks(books)}
-        })*/
-
     }
 
     // Init Top Toolbar
@@ -80,7 +65,7 @@ class BookListActivity : AppCompatActivity() {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         // Init Adapter
-        adapter = BooksListAdapter(emptyList(), books2)
+        adapter = BooksListAdapter(emptyList())
         recyclerView.adapter = adapter
     }
 

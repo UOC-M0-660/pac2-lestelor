@@ -15,7 +15,7 @@ import edu.uoc.pac2.data.Book
  * Adapter for a list of Books.
  */
 
-class BooksListAdapter(private var books: List<Book>, private var books2: LiveData<List<Book>>?) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
+class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<BooksListAdapter.ViewHolder>() {
 
     private val evenViewType = 0
     private val oddViewType = 1

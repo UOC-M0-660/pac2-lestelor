@@ -69,5 +69,6 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     // TODO: Add Image Loading Library
+    implementation 'com.squareup.picasso:picasso:2.71828'
     // Other Libraries
 }
