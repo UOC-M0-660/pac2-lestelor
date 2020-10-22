@@ -54,6 +54,9 @@ dependencies {
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
+    // Admob
+    implementation 'com.google.android.gms:play-services-ads:19.5.0'
+
     // Add Room
     def room_version = "2.2.5"
 

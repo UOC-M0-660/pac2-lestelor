@@ -3,38 +3,37 @@ package edu.uoc.pac2.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.ImageView
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NavUtils
-import androidx.lifecycle.Observer
-import com.squareup.picasso.Picasso
-import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
-import edu.uoc.pac2.data.Book
-import edu.uoc.pac2.data.BooksInteractor
-import kotlinx.android.synthetic.main.fragment_book_detail.*
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * An activity representing a single Book detail screen.
  */
 class BookDetailActivity : AppCompatActivity() {
 
-    private val TAG = "BookListActivity"
-
-    private lateinit var adapter: BooksListAdapter
-    private var book: Book? = null
-
+    private lateinit var toolbar:Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_detail)
 
-        val toolbar = findViewById<Toolbar>(R.id.detail_toolbar)
+        toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
         setSupportActionBar(toolbar)
+
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        val bottomUp: Animation = AnimationUtils.loadAnimation(this,
+                R.anim.translate_in_bottom)
+        val hiddenPanel = findViewById<ViewGroup>(R.id.book_detail_container)
+        hiddenPanel.startAnimation(bottomUp)
+        hiddenPanel.visibility = View.VISIBLE
 
 
         // savedInstanceState is non-null when there is fragment state
@@ -57,7 +56,6 @@ class BookDetailActivity : AppCompatActivity() {
         }
 
 
-
     }
 
     // TODO: Override finish animation for actionbar back arrow
@@ -71,7 +69,8 @@ class BookDetailActivity : AppCompatActivity() {
                     // more details, see the Navigation pattern on Android Design:
                     //
                     // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-
+                    animationOut()
+                    goToMainActivity()
                     NavUtils.navigateUpTo(this, Intent(this, BookListActivity::class.java))
 
                     true
@@ -82,7 +81,19 @@ class BookDetailActivity : AppCompatActivity() {
     // TODO: Override finish animation for phone back button
     override fun onBackPressed() {
         super.onBackPressed()
+        animationOut()
+        goToMainActivity()
+    }
+
+    private fun goToMainActivity() {
         NavUtils.navigateUpTo(this, Intent(this, BookListActivity::class.java))
     }
 
+    private fun animationOut() {
+        val upBottom: Animation = AnimationUtils.loadAnimation(this,
+                R.anim.translate_out_top)
+        val hiddenPanel = findViewById<ViewGroup>(R.id.book_detail_container)
+        hiddenPanel.startAnimation(upBottom)
+        hiddenPanel.visibility = View.VISIBLE
+    }
 }

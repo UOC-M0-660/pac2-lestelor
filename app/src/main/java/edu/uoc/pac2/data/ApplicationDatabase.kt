@@ -31,8 +31,7 @@ public abstract class ApplicationDatabase: RoomDatabase() {
                 scope.launch {
                     val bookDao = database.bookDao()
 
-                    // Delete all content here.
-                    //bookDao.
+                    // Delete all content here. Not a good practice
 
                     // Add sample books.
                     val book = Book(0,"title","author","description","date","url")

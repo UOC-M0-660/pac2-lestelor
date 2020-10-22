@@ -2,11 +2,22 @@ package edu.uoc.pac2.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.*
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import edu.uoc.pac2.MyApplication
@@ -17,11 +28,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
+
 /**
  * An activity representing a list of Books.
  */
 class BookListActivity : AppCompatActivity() {
 
+    private lateinit var mAdView : AdView
     private lateinit var myApplication: MyApplication
     private val TAG = "BookListActivity"
 
@@ -36,6 +50,10 @@ class BookListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
 
+        MobileAds.initialize(this) {}
+        mAdView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
         myApplication = applicationContext as MyApplication
 
         // Init UI
@@ -53,7 +71,7 @@ class BookListActivity : AppCompatActivity() {
 
     // Init Top Toolbar
     private fun initToolbar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar_activity)
         setSupportActionBar(toolbar)
         toolbar.title = title
     }
@@ -119,6 +137,5 @@ class BookListActivity : AppCompatActivity() {
             booksInteractor.saveBooks(books)
         }
     }
-
 
 }
