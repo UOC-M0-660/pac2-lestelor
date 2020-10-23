@@ -1,6 +1,8 @@
 package edu.uoc.pac2.data
 
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * This class Interacts with {@param bookDao} to perform operations in the local database.

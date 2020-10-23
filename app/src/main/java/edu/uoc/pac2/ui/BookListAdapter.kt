@@ -86,7 +86,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     }
 
     // Holds an instance to the view for re-use
-    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val authorView: TextView = view.findViewById(R.id.author)
     }

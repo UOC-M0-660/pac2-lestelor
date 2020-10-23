@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,10 +25,9 @@ import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
 import edu.uoc.pac2.data.BooksInteractor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 
 /**
@@ -38,17 +38,19 @@ class BookListActivity : AppCompatActivity() {
     private lateinit var mAdView : AdView
     private lateinit var myApplication: MyApplication
     private val TAG = "BookListActivity"
-
     private lateinit var adapter: BooksListAdapter
     private var books: List<Book>? = null
+    private lateinit var allBooksFlow: Flow<List<Book>>
+    private lateinit var allBooks: LiveData<List<Book>>
     private lateinit var booksInteractor: BooksInteractor
     private lateinit var viewModelScope:CoroutineScope
-
 
 
     override  fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
+
+
 
         MobileAds.initialize(this) {}
         mAdView = findViewById(R.id.adView)
@@ -62,11 +64,12 @@ class BookListActivity : AppCompatActivity() {
 
         // initialize interactor
         booksInteractor = myApplication.getBooksInteractor()
+
         // define scope for livedata
         viewModelScope = myApplication.getViewModelScope()
 
         // Get Books
-        getBooks(this)
+        getBooks()
     }
 
     // Init Top Toolbar
@@ -88,20 +91,14 @@ class BookListActivity : AppCompatActivity() {
     }
 
     // TODO: Get Books and Update UI
-    private fun getBooks(lifecycleOwner: LifecycleOwner) {
-        val db = FirebaseFirestore.getInstance()
-        val docRef = db.collection("books")
+    private fun getBooks() {
 
 
         if (!myApplication.hasInternetConnection()) {
-                val allBooks = booksInteractor.getAllBooks()
-                allBooks.observe(lifecycleOwner, Observer { books ->
-                    // Update the cached copy of the books in the adapter.
-                    books?.let {
-                        adapter.setBooks(books)
-                    }
-                })
+            loadBooksFromLocalDb()
         } else        {
+            val db = FirebaseFirestore.getInstance()
+            val docRef = db.collection("books")
             docRef.addSnapshotListener { querySnapshot, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
@@ -116,9 +113,7 @@ class BookListActivity : AppCompatActivity() {
 
                 for (doc in querySnapshot?.documentChanges!!) {
                     if (doc?.type == DocumentChange.Type.MODIFIED) {
-                        viewModelScope.launch(Dispatchers.IO) {
-                            books?.get(doc.document.id.toInt())?.let { booksInteractor.saveBook(it) }
-                        }
+                        books?.get(doc.document.id.toInt())?.let {saveBookToLocalDatabase(it)}
                     }
                 }
 
@@ -128,6 +123,14 @@ class BookListActivity : AppCompatActivity() {
 
     // TODO: Load Books from Room
     private fun loadBooksFromLocalDb() {
+        allBooks = booksInteractor.getAllBooks()
+        allBooks.observe(this, Observer { books ->
+            // Update the cached copy of the books in the adapter.
+            books?.let {
+                adapter.setBooks(books)
+            }
+        })
+
 
     }
 
@@ -135,6 +138,21 @@ class BookListActivity : AppCompatActivity() {
     private fun saveBooksToLocalDatabase(books: List<Book>) {
         viewModelScope.launch(Dispatchers.IO) {
             booksInteractor.saveBooks(books)
+        }
+        /*allBooksFlow = flow<List<Book>> {
+            emit(booksInteractor.getAllBooks())
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                allBooksFlow.collect { value:List<Book> -> allBooks.value = value)
+            }
+        }*/
+    }
+
+    // Save Book to Local Storage
+    private fun saveBookToLocalDatabase(book: Book) {
+        viewModelScope.launch(Dispatchers.IO) {
+            booksInteractor.saveBook(book)
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NavUtils
 import edu.uoc.pac2.R
+import kotlinx.coroutines.delay
 
 /**
  * An activity representing a single Book detail screen.
@@ -25,7 +26,6 @@ class BookDetailActivity : AppCompatActivity() {
 
         toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
         setSupportActionBar(toolbar)
-
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 

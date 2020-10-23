@@ -1,11 +1,7 @@
 package edu.uoc.pac2.ui
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -40,17 +36,11 @@ class BookDetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        myApplication = activity!!.application as MyApplication
         arguments?.let {
             bookId = it.getInt(ARG_ITEM_ID)
         }
-        actionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
-
-        toolbar = activity?.findViewById<Toolbar>(R.id.toolbar_detail)!!
-        fab = activity?.findViewById<FloatingActionButton>(R.id.fab)!!
-        ivToolbar = (activity as AppCompatActivity).findViewById(R.id.iv_detail)
-
-        myApplication = activity!!.application as MyApplication
-
+        initToolbar()
         return inflater.inflate(R.layout.fragment_book_detail, container, false)
     }
 
@@ -60,6 +50,12 @@ class BookDetailFragment : Fragment() {
         loadBook()
     }
 
+    private fun initToolbar() {
+        actionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
+        toolbar = activity?.findViewById<Toolbar>(R.id.toolbar_detail)!!
+        fab = activity?.findViewById<FloatingActionButton>(R.id.fab)!!
+        ivToolbar = (activity as AppCompatActivity).findViewById(R.id.iv_detail)
+    }
 
     // TODO: Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
@@ -83,7 +79,7 @@ class BookDetailFragment : Fragment() {
     private fun initUI(book: Book) {
         //throw NotImplementedError()
         toolbar.title = book.title
-        Picasso.get().load(book.urlImage).resize(582, 890/3).centerCrop().into(ivToolbar)
+        Picasso.get().load(book.urlImage).fit().centerCrop().into(ivToolbar)
 
         Log.d("cfauli", "booktitle " + book.title)
         //setToolbarImage(book)
