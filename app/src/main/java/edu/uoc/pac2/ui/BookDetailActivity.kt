@@ -24,17 +24,13 @@ class BookDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_detail)
 
-        toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // Not find the way to init the supportactionbar in the fragment. Done here.
+        // Put a Toolbar in xml in order to show the back button, the override the actions (below)
+        // The height is the minimum toolbar is shown after collapsing
+        initToolBar()
 
-        val bottomUp: Animation = AnimationUtils.loadAnimation(this,
-                R.anim.translate_in_bottom)
-        val hiddenPanel = findViewById<ViewGroup>(R.id.book_detail_container)
-        hiddenPanel.startAnimation(bottomUp)
-        hiddenPanel.visibility = View.VISIBLE
-
+        // animate view. Image and text apper from bottom
+        animateView()
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -69,6 +65,8 @@ class BookDetailActivity : AppCompatActivity() {
                     // more details, see the Navigation pattern on Android Design:
                     //
                     // http://developer.android.com/design/patterns/navigation.html#up-vs-back
+
+                    // Animate the view sending image and text to the bottom
                     animationOut()
                     goToMainActivity()
                     NavUtils.navigateUpTo(this, Intent(this, BookListActivity::class.java))
@@ -78,11 +76,29 @@ class BookDetailActivity : AppCompatActivity() {
                 else -> super.onOptionsItemSelected(item)
             }
 
+    // Same behaviour as back item selected
     // TODO: Override finish animation for phone back button
     override fun onBackPressed() {
         super.onBackPressed()
         animationOut()
         goToMainActivity()
+    }
+
+    private fun initToolBar() {
+        toolbar = findViewById<Toolbar>(R.id.toolbar_detail)
+        setSupportActionBar(toolbar)
+        // If title enabled, it shows "Book Detail" instead of the name of the book. We want to show the
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        // show the back button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun animateView() {
+        val bottomUp: Animation = AnimationUtils.loadAnimation(this,
+                R.anim.translate_in_bottom)
+        val hiddenPanel = findViewById<ViewGroup>(R.id.book_detail_container)
+        hiddenPanel.startAnimation(bottomUp)
+        hiddenPanel.visibility = View.VISIBLE
     }
 
     private fun goToMainActivity() {

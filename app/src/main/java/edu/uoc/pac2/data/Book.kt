@@ -9,10 +9,10 @@ import androidx.room.PrimaryKey
 @Entity
 data class Book(
         @PrimaryKey
-        val uid:Int? = null,
-        val title: String? = null,
-        var author: String? = null,
-        val description: String? = null,
-        val publicationDate: String? = null,
-        val urlImage: String? = null
+        val uid:Int? = 0,
+        val title: String? = "",
+        var author: String? = "",
+        val description: String? = "",
+        val publicationDate: String? = "",
+        val urlImage: String? = ""
 )

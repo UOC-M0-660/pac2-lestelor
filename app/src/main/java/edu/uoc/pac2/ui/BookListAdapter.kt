@@ -23,7 +23,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     private fun getBook(position: Int): Book {
         return books[position]
     }
-
+    // To init the recyclerview and maintain updated when there is changes in the entry variable books
     fun setBooks(books: List<Book>) {
         this.books = books
         // Reloads the RecyclerView with new adapter data
@@ -62,7 +62,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.titleView.text = book.title
         holder.authorView.text = book.author
 
-        // tag as a way to inform the onclicklistener on the position
+        // tag as a way to inform the onclicklistener on the position, set the onclicklistener
         with(holder.itemView) {
             tag = position
             setOnClickListener(onClickListener)

@@ -33,9 +33,9 @@ public abstract class ApplicationDatabase: RoomDatabase() {
 
                     // Delete all content here. Not a good practice
 
-                    // Add sample books.
-                    val book = Book(0,"title","author","description","date","url")
-                    bookDao.saveBook(book)
+                    // Add books. Not necessary in this case since livedata is used to observe changes
+                    //val book = Book(0,"title","author","description","date","url")
+                    //bookDao.saveBook(book)
 
                 }
             }
@@ -58,7 +58,7 @@ public abstract class ApplicationDatabase: RoomDatabase() {
                 val instance = Room.databaseBuilder(
                         context.applicationContext,
                         ApplicationDatabase::class.java,
-                        "word_database"
+                        "book_database"
                 )
                         .addCallback(BookDatabaseCallback(scope))
                         .build()

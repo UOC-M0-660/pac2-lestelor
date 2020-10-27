@@ -36,7 +36,8 @@ class BookDetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        myApplication = activity!!.application as MyApplication
+        myApplication = activity?.application as MyApplication
+        // Get the id of the book sent by BookDetailActivity
         arguments?.let {
             bookId = it.getInt(ARG_ITEM_ID)
         }
@@ -51,16 +52,18 @@ class BookDetailFragment : Fragment() {
     }
 
     private fun initToolbar() {
-        actionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
+        // Not possible her to setsupportactionbar. Investigate
+        // !! will return an exception if does not exist is the xml file
         toolbar = activity?.findViewById<Toolbar>(R.id.toolbar_detail)!!
         fab = activity?.findViewById<FloatingActionButton>(R.id.fab)!!
-        ivToolbar = (activity as AppCompatActivity).findViewById(R.id.iv_detail)
+        ivToolbar = activity?.findViewById(R.id.iv_detail)!!
     }
 
     // TODO: Get Book for the given {@param ARG_ITEM_ID} Book id
     private fun loadBook() {
         //throw NotImplementedError()
         var book: Book
+        // Ensure that bookid exists otherwise bookId!! will return an exception
         bookId.let {
             val liveBook = myApplication.getBooksInteractor().getBookById(bookId!! + 1)
             liveBook?.observe(this, Observer { bookObserved ->
@@ -99,10 +102,16 @@ class BookDetailFragment : Fragment() {
         intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("cfauli@edu.uoc"))
         intent.putExtra(Intent.EXTRA_SUBJECT, "PEC2")
         intent.putExtra(Intent.EXTRA_TEXT, book.title + "\n" + book.urlImage)
-        intent.putExtra(Intent.EXTRA_STREAM, book.urlImage)
-        intent.type = "message/rfc822"
-        startActivity(Intent.createChooser(intent, "Send Email using:"));
+        // error
+        // intent.putExtra(Intent.EXTRA_STREAM, book.urlImage)
+        //intent.type = "message/rfc822"
+        intent.type = "text/plain"
+        startActivity(Intent.createChooser(intent, "Share using:"));
     }
+
+    // A way to use the Picasso images to set other things different than views, e.g. toolbar background
+    // Not used since it wasn't adapted in time when the function is called. Instead, used a ImageView which
+    // is adapted the time picasso loads the image
 
     /*private fun setToolbarImage(book: Book) {
         Picasso.get()
