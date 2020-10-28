@@ -139,6 +139,7 @@ class BookListActivity : AppCompatActivity() {
         })
 
         // Deprecated way to call an async task. First change LiveData<List<Book>> by just List<Book>
+        // Ui can only be accessed on the main Thread, so when in background (e.g. BookDetailFragment) it is necessary to come back to the main in orde to update the ui
         /*AsyncTask.execute {
             // Your background code here
             allBooks = booksInteractor.getAllBooks()
