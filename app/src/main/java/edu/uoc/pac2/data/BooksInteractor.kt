@@ -1,9 +1,5 @@
 package edu.uoc.pac2.data
 
-import androidx.lifecycle.LiveData
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-
 /**
  * This class Interacts with {@param bookDao} to perform operations in the local database.
  *
@@ -14,33 +10,24 @@ import kotlinx.coroutines.flow.flow
  */
 class BooksInteractor(private val bookDao: BookDao) {
 
-    // Room executes all queries on a separate thread.
-    // Observed LiveData will notify the observer when the data has changed.
-    //val allBooks: LiveData<List<Book>> = bookDao.getAllBooks()
-
-    // TODO: Get All Books from DAO
-    fun getAllBooks(): LiveData<List<Book>> {
+    // Get All Books from DAO
+    fun getAllBooks(): List<Book> {
         return bookDao.getAllBooks()
     }
 
-    // TODO: Save Book
-    suspend fun saveBook(book: Book) {
+    // Save Book
+    fun saveBook(book: Book) {
         bookDao.saveBook(book)
     }
 
-    // TODO: Save List of Books
-    suspend fun saveBooks(books: List<Book>) {
+    // Save List of Books
+    fun saveBooks(books: List<Book>) {
         books.forEach { saveBook(it) }
     }
 
-    // TODO: Get Book by id
-    fun getBookById(id: Int): LiveData<Book>? {
+    // Get Book by id
+    fun getBookById(id: Int): Book? {
         return bookDao.getBookById(id)
-    }
-
-    // TODO: Get Book by id
-    fun getBookByTitle(titleBook: String): LiveData<Book>? {
-        return bookDao.getBookByTitle(titleBook)
     }
 
 }

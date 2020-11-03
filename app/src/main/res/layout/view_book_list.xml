@@ -10,4 +10,3 @@
     android:layout_marginRight="16dp"
     tools:context="edu.uoc.pac2.ui.BookListActivity"
     tools:listitem="@layout/row_book_list_content_even" />
-

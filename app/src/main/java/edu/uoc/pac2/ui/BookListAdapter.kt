@@ -1,12 +1,11 @@
 package edu.uoc.pac2.ui
 
+import android.app.ActivityOptions
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
@@ -23,7 +22,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     private fun getBook(position: Int): Book {
         return books[position]
     }
-    // To init the recyclerview and maintain updated when there is changes in the entry variable books
+
     fun setBooks(books: List<Book>) {
         this.books = books
         // Reloads the RecyclerView with new adapter data
@@ -62,23 +61,16 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
         holder.titleView.text = book.title
         holder.authorView.text = book.author
 
-        // tag as a way to inform the onclicklistener on the position, set the onclicklistener
-        with(holder.itemView) {
-            tag = position
-            setOnClickListener(onClickListener)
+        // Set View Click Listener
+        holder.view.setOnClickListener { v ->
+            val context = v.context
+            val animation = ActivityOptions.makeCustomAnimation(holder.view.context, R.anim.translate_in_bottom,
+                    R.anim.translate_out_bottom).toBundle()
+            val intent = Intent(context, BookDetailActivity::class.java)
+            intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book.uid)
+            context.startActivity(intent, animation)
         }
     }
-
-    private val onClickListener: View.OnClickListener = View.OnClickListener { v ->
-        //Log.d("cfauli", "onClickListener item" + v.tag + " " + books2?.get(0)?.title )
-        val item = v.tag as Int
-        Log.d("cfauli", "onClickListener  " + item)
-        val intent = Intent(v.context, BookDetailActivity::class.java).apply {
-            putExtra(BookDetailFragment.ARG_ITEM_ID, v.tag as Int)
-        }
-        v.context.startActivity(intent)
-    }
-
 
     // Returns total items in Adapter
     override fun getItemCount(): Int {
@@ -86,7 +78,7 @@ class BooksListAdapter(private var books: List<Book>) : RecyclerView.Adapter<Boo
     }
 
     // Holds an instance to the view for re-use
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val titleView: TextView = view.findViewById(R.id.title)
         val authorView: TextView = view.findViewById(R.id.author)
     }

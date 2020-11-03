@@ -1,81 +1,62 @@
 package edu.uoc.pac2.ui
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import edu.uoc.pac2.MyApplication
 import edu.uoc.pac2.R
 import edu.uoc.pac2.data.Book
 import edu.uoc.pac2.data.BooksInteractor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-
+import kotlinx.android.synthetic.main.activity_book_list.*
 
 /**
  * An activity representing a list of Books.
  */
 class BookListActivity : AppCompatActivity() {
 
-    private lateinit var mAdView : AdView
-    private lateinit var myApplication: MyApplication
     private val TAG = "BookListActivity"
+
+    private var database: FirebaseFirestore = Firebase.firestore
     private lateinit var adapter: BooksListAdapter
-    private var books: List<Book>? = null
-    private lateinit var allBooksFlow: Flow<List<Book>>
-    private lateinit var allBooks: LiveData<List<Book>>
-    private lateinit var booksInteractor: BooksInteractor
-    private lateinit var viewModelScope:CoroutineScope
 
+    private var booksListener: ListenerRegistration? = null
 
-    override  fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_list)
-
-        // Enable MyApplication as applicationContext
-        myApplication = applicationContext as MyApplication
-
-        // init AdMob adds
-        initAdMob()
 
         // Init UI
         initToolbar()
         initRecyclerView()
 
-        // initialize interactor
-        booksInteractor = myApplication.getBooksInteractor()
-
-        // define scope for livedata
-        viewModelScope = myApplication.getViewModelScope()
-
         // Get Books
         getBooks()
+
+        // Add books data to Firestore [Use for new project with empty Firestore Database]
+        // FirestoreBookData.addBooksDataToFirestoreDatabase()
+
+        // Init AdMob
+        initAdMob()
     }
 
-    // init AdMob adds
-    private fun initAdMob() {
-        MobileAds.initialize(this) {}
-        mAdView = findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
-    }
     // Init Top Toolbar
     private fun initToolbar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar_activity)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = title
     }
+
     // Init RecyclerView
     private fun initRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.book_list)
@@ -87,94 +68,76 @@ class BookListActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    // TODO: Get Books and Update UI
+    // Get Books and Update UI
     private fun getBooks() {
-
-        // If no Internet load from local database
-        // else get books from Firestore save them to local Room Database and listen changes ->
-        // save modified book to Room
-        if (!myApplication.hasInternetConnection()) {
-            // No internet
-            loadBooksFromLocalDb()
-        } else        {
-            //Internet
-            // Get Firebase Database, collection books
-            val db = FirebaseFirestore.getInstance()
-            val docRef = db.collection("books")
-            docRef.addSnapshotListener { querySnapshot, e ->
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-                // Map the recovered books to the class Book, must have the same identifiers
-                books = querySnapshot?.documents?.mapNotNull { it.toObject(Book::class.java) }
-                // Set Recycler View Adapter and save books to Local database
-                books?.let {
-                    adapter.setBooks(it)
-                    saveBooksToLocalDatabase(books!!)
-                }
-
-                // If any change in any field, save entire book to local database
-                // Using a device API 26 it is possible to inspect the Database View/Tools Window/Database Inspector
-                // Refresh -> to see any change
-                for (doc in querySnapshot?.documentChanges!!) {
-                    if (doc?.type == DocumentChange.Type.MODIFIED) {
-                        books?.get(doc.document.id.toInt())?.let {saveBookToLocalDatabase(it)}
+        // First load whatever is stored locally
+        loadBooksFromLocalDb()
+        // Check if Internet is available
+        if ((application as MyApplication).hasInternetConnection()) {
+            // Internet connection is available, get remote data
+            booksListener = database.collection("books")
+                    // Subscribe to remote book changes
+                    .addSnapshotListener { querySnapshot, exception ->
+                        // Success
+                        querySnapshot?.let {
+                            val books: List<Book> = querySnapshot.documents.mapNotNull {
+                                it.toObject(Book::class.java)
+                            }
+                            Log.i(TAG, "Got #${books.count()} books from Firestore")
+                            // Update Local content
+                            saveBooksToLocalDatabase(books)
+                            // Update UI
+                            adapter.setBooks(books)
+                        }
+                        // Error
+                        exception?.let {
+                            Log.w(TAG, "Error retrieving books from Firestore: $it")
+                        }
                     }
-                }
+        }
+    }
 
+    // Load Books from Room
+    private fun loadBooksFromLocalDb() {
+        val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
+        // Run in Background, accessing the local database is a memory-expensive operation
+        AsyncTask.execute {
+            // Get Books
+            val books = booksInteractor.getAllBooks()
+            // Update Adapter on the UI Thread
+            runOnUiThread {
+                adapter.setBooks(books)
             }
         }
     }
 
-    // TODO: Load Books from Room
-    private fun loadBooksFromLocalDb() {
-        allBooks = booksInteractor.getAllBooks()
-        //Observe the live data for changes. When the local database is loaden into allbokks then update the recyclerview adapter
-        allBooks.observe(this, Observer { books ->
-            // Update the cached copy of the books in the adapter.
-            books?.let {
-                adapter.setBooks(books)
-            }
-        })
-
-        // Deprecated way to call an async task. First change LiveData<List<Book>> by just List<Book>
-        // Ui can only be accessed on the main Thread, so when in background (e.g. BookDetailFragment) it is necessary to come back to the main in orde to update the ui
-        /*AsyncTask.execute {
-            // Your background code here
-            allBooks = booksInteractor.getAllBooks()
-            adapter.setBooks(allBooks)
-            Log.d("cfauli", "loadBooksFromLocalDb asynctask after allbooks ")
-
-            runOnUiThread {
-                // Main code here
-                //Log.d("cfauli", "loadBooksFromLocalDb runonuithread ")
-            }
-        }*/
+    // Save Books to Local Storage
+    private fun saveBooksToLocalDatabase(books: List<Book>) {
+        val booksInteractor: BooksInteractor = (application as MyApplication).getBooksInteractor()
+        // Run in Background; accessing the local database is a memory-expensive operation
+        AsyncTask.execute {
+            booksInteractor.saveBooks(books)
+        }
     }
 
-// TODO: Save Books to Local Storage
-private fun saveBooksToLocalDatabase(books: List<Book>) {
-    // Send an order to save books to local database. Observers can recover the data
-    viewModelScope.launch(Dispatchers.IO) {
-    booksInteractor.saveBooks(books)
-}
-/* Not successful try on using kotlin coroutines flow
-allBooksFlow = flow<List<Book>> {
-    emit(booksInteractor.getAllBooks())
-}
-viewModelScope.launch(Dispatchers.IO) {
-    withContext(Dispatchers.Main) {
-        allBooksFlow.collect { value:List<Book> -> allBooks.value = value)
+    private fun initAdMob() {
+        MobileAds.initialize(this) {
+            Log.i(TAG, "Admob initialize completed with status: $it")
+        }
+        // Load Ad
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+        // Optional: set some listeners
+        adView.adListener = object : AdListener() {
+            override fun onAdOpened() {
+                Log.i(TAG, "Ad opened! $$$$")
+            }
+        }
     }
-}*/
-}
 
-// Save Book to Local Storage
-private fun saveBookToLocalDatabase(book: Book) {
-viewModelScope.launch(Dispatchers.IO) {
-    booksInteractor.saveBook(book)
-}
-}
-
+    override fun onDestroy() {
+        // IMPORTANT! Remove Firestore Change Listener to prevent memory leaks
+        booksListener?.remove()
+        super.onDestroy()
+    }
 }

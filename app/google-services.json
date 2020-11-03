@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "285676765048",
-    "firebase_url": "https://pac2-lestelor.firebaseio.com",
-    "project_id": "pac2-lestelor",
-    "storage_bucket": "pac2-lestelor.appspot.com"
+    "project_number": "137261578474",
+    "firebase_url": "https://enti-helloworld.firebaseio.com",
+    "project_id": "enti-helloworld",
+    "storage_bucket": "enti-helloworld.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:285676765048:android:f6b30ad39ed8f5f84b128d",
+        "mobilesdk_app_id": "1:137261578474:android:184957b6dfe5618d27bf93",
         "android_client_info": {
           "package_name": "edu.uoc.pac2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "285676765048-f50h2mv900nt9f6n0qnkrjs3agjss3oq.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "edu.uoc.pac2",
-            "certificate_hash": "cb8dbb832a503443ab35e1eaf2c2b8846c8605e2"
-          }
-        },
-        {
-          "client_id": "285676765048-ainju3do40m5lr3kce0op4qehhnj0tmr.apps.googleusercontent.com",
+          "client_id": "137261578474-cal9lpp4ek6ua825ksgauqrv1e56h347.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBP_jM4X5A9dnwAXAoBaqhoSQKiNdWfjuY"
+          "current_key": "AIzaSyCR1r7nCLjc4C6rhxftNbo3tslxV5KAkiQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "285676765048-ainju3do40m5lr3kce0op4qehhnj0tmr.apps.googleusercontent.com",
+              "client_id": "137261578474-cal9lpp4ek6ua825ksgauqrv1e56h347.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
